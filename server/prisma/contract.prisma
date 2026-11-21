@@ -1,0 +1,28 @@
+// use prisma-8
+
+model User {
+  id        Uuid               @id @onCreate(uuid(7)) 
+  email     String             @unique
+  password  String
+  name      String
+  invoices  Invoice[]
+
+  @@map("users")
+}
+
+model Invoice {
+  id        Uuid                @id @onCreate(uuid(7))
+  vendor_name    String
+  amount    Decimal(precision: 12,scale: 2)
+  due_date  DateTime
+  description    String
+  user_id   Uuid
+  paid      Boolean            @default(false)
+  user      User               @relation(fields:[user_id], references:[id], onDelete:Cascade)
+
+  @@index([user_id])
+  @@map("invoices")
+}
+
+// For later
+// Add checks in models (len of pass,name,mail) amount should only be positive
