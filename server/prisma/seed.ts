@@ -1,5 +1,5 @@
 import "dotenv/config"
-import { db } from '../src/db/db';
+import { db } from '../src/db/db.ts';
 import bcrypt from "bcrypt";
 
 const vendors = ["Digi", "Orange", "McDonalds", "Starlink", "Nvidia"];
