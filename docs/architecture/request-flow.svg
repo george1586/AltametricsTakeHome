@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1040" height="704" viewBox="0 0 1040 704" role="img" aria-labelledby="title desc">
 <title id="title">End-to-end request flow</title>
-<desc id="desc">Sequence diagram across User, React client, NestJS API and PostgreSQL. Log in: the user submits email and password, zod validates, the client posts to /auth/login, the API finds the user by email, compares the bcrypt hash, signs a JWT and returns it; the client stores it and navigates to /invoices. Load list: the client sends GET /invoices with the Bearer token, the guard sets req.user, the API runs findMany and count filtered by user_id and returns data and meta. Open detail: the user clicks a row, the client dispatches openInvoice, sends GET /invoices/:id, the API runs findFirst by id and user_id and returns the invoice or 404, and the modal shows the details.</desc>
+<desc id="desc">Sequence diagram across User, React client, NestJS API and PostgreSQL. Log in: the user submits email and password, zod validates, the client posts to /auth/login, the API finds the user by email, compares the bcrypt hash, signs a JWT and returns it; the client stores it and navigates to /invoices. Load list: the client sends GET /invoices with the Bearer token, the guard sets req.user, the API reads one page and the total count filtered by user_id and returns data and meta. Open detail: the user clicks a row, the client dispatches invoiceSelected, sends GET /invoices/:id, the API reads the first invoice matching id and user_id and returns the invoice or 404, and the modal shows the details.</desc>
 <defs>
 <style>
 :root{--surface:#ffffff;--ink:#172024;--ink-2:#3a464b;--muted:#5c686d;--line:#cdd5d2;--client:#2a55c8;--client-tint:#e6ecfb;--api:#9c5600;--api-tint:#fbf0dd;--data:#0b7454;--data-tint:#dff2ea}
@@ -66,7 +66,7 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
   <text class="m t-lbl" x="475" y="261" text-anchor="middle">200 { accessToken, user }</text>
 
   <path class="edge" d="M330,284 h28 v14 h-28" marker-end="url(#arrow)"/>
-  <text class="t-lbl" x="366" y="295">setCredentials, go to /invoices</text>
+  <text class="t-lbl" x="366" y="295">loggedIn, go to /invoices</text>
 
   <!-- phase: list -->
   <line class="sep" x1="0" y1="318" x2="1000" y2="318"/>
@@ -79,7 +79,7 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
   <text class="t-lbl" x="656" y="373">JwtAuthGuard sets req.user</text>
 
   <line class="edge" x1="620" y1="402" x2="890" y2="402" marker-end="url(#arrow)"/>
-  <text class="t-lbl" x="755" y="395" text-anchor="middle">findMany + count where user_id = sub</text>
+  <text class="t-lbl" x="755" y="395" text-anchor="middle">where user_id = sub · page + count</text>
 
   <line class="edge dash" x1="890" y1="430" x2="620" y2="430" marker-end="url(#arrow)"/>
   <text class="t-lbl" x="755" y="423" text-anchor="middle">rows + total</text>
@@ -95,13 +95,13 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
   <text class="t-lbl" x="205" y="497" text-anchor="middle">click an invoice row</text>
 
   <path class="edge" d="M330,520 h28 v14 h-28" marker-end="url(#arrow)"/>
-  <text class="t-lbl" x="366" y="531">dispatch openInvoice(id)</text>
+  <text class="t-lbl" x="366" y="531">dispatch invoiceSelected(id)</text>
 
   <line class="edge" x1="330" y1="562" x2="620" y2="562" marker-end="url(#arrow)"/>
   <text class="m t-lbl" x="475" y="555" text-anchor="middle">GET /invoices/:id + Bearer</text>
 
   <line class="edge" x1="620" y1="590" x2="890" y2="590" marker-end="url(#arrow)"/>
-  <text class="t-lbl" x="755" y="583" text-anchor="middle">findFirst where id and user_id</text>
+  <text class="t-lbl" x="755" y="583" text-anchor="middle">first() where id and user_id</text>
 
   <line class="edge dash" x1="620" y1="618" x2="330" y2="618" marker-end="url(#arrow)"/>
   <text class="t-lbl" x="475" y="611" text-anchor="middle">200 invoice, or 404 if not theirs</text>

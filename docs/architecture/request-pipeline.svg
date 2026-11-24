@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1040" height="564" viewBox="0 0 1040 564" role="img" aria-labelledby="title desc">
 <title id="title">API request pipeline</title>
-<desc id="desc">Request pipeline for GET /invoices/42. The request passes LoggerMiddleware, JwtAuthGuard, ValidationPipe and ParseIntPipe, InvoicesController, InvoicesService and PrismaService to PostgreSQL, then returns 200 JSON. The guard throws 401 for a missing or bad token, the pipe throws 400 for an invalid id or query, and the service throws 404 when no invoice matches the id for this user. All three go to a global HttpExceptionFilter that returns a consistent error JSON.</desc>
+<desc id="desc">Request pipeline for GET /invoices/:id. The request passes LoggerMiddleware, JwtAuthGuard, the Zod validation pipe, InvoicesController, InvoicesService and the Prisma 8 db client to PostgreSQL, then returns 200 JSON. The guard throws 401 for a missing or bad token, the pipe throws 400 for an invalid id or query, and the service throws 404 when no invoice matches the id for this user. All three go through the NestJS exception layer, which returns a consistent error JSON.</desc>
 <defs>
 <style>
 :root{--surface:#ffffff;--sunk:#e9edeb;--ink:#172024;--ink-2:#3a464b;--muted:#5c686d;--line:#cdd5d2;--client:#2a55c8;--client-tint:#e6ecfb;--api:#9c5600;--api-tint:#fbf0dd;--data:#0b7454;--data-tint:#dff2ea;--err:#b42318;--err-tint:#fdeceb}
@@ -31,7 +31,7 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
 
   <!-- stages -->
   <rect class="box" x="60" y="20" width="400" height="52" rx="8"/>
-  <text class="m t-title" x="76" y="42">GET /invoices/42</text>
+  <text class="m t-title" x="76" y="42">GET /invoices/:id (UUID)</text>
   <text class="m t-sub" x="76" y="60">Authorization: Bearer eyJhbGciOi…</text>
   <line class="edge" x1="260" y1="72" x2="260" y2="92" marker-end="url(#arrow)"/>
 
@@ -46,22 +46,22 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
   <line class="edge" x1="260" y1="216" x2="260" y2="236" marker-end="url(#arrow)"/>
 
   <rect class="ta" x="60" y="236" width="400" height="52" rx="8"/>
-  <text class="t-title" x="76" y="258">ValidationPipe · ParseIntPipe</text>
-  <text class="t-sub" x="76" y="276">id is an integer; page and limit within range</text>
+  <text class="t-title" x="76" y="258">StandardSchemaValidationPipe · Zod</text>
+  <text class="t-sub" x="76" y="276">id is a UUID; page and limit within range</text>
   <line class="edge" x1="260" y1="288" x2="260" y2="308" marker-end="url(#arrow)"/>
 
   <rect class="ta" x="60" y="308" width="400" height="52" rx="8"/>
   <text class="t-title" x="76" y="330">InvoicesController</text>
-  <text class="m t-sub" x="76" y="348">findOne(@Param('id') id, @CurrentUser() user)</text>
+  <text class="m t-sub" x="76" y="348">getInvoice(@CurrentUser() user, @Param('id') id)</text>
   <line class="edge" x1="260" y1="360" x2="260" y2="380" marker-end="url(#arrow)"/>
 
   <rect class="ta" x="60" y="380" width="400" height="52" rx="8"/>
   <text class="t-title" x="76" y="402">InvoicesService</text>
-  <text class="m t-sub" x="76" y="420">invoice.findFirst({ where: { id, userId } })</text>
+  <text class="m t-sub" x="76" y="420">Invoice.where({ id, user_id }).first()</text>
   <line class="edge" x1="260" y1="432" x2="260" y2="452" marker-end="url(#arrow)"/>
 
   <rect class="td" x="60" y="452" width="400" height="52" rx="8"/>
-  <text class="t-title" x="76" y="474">PrismaService → PostgreSQL</text>
+  <text class="t-title" x="76" y="474">db (Prisma 8) → PostgreSQL</text>
   <text class="m t-sub" x="76" y="492">SELECT … WHERE id = $1 AND user_id = $2</text>
 
   <!-- error exits -->
@@ -88,10 +88,10 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
   <line class="edge" x1="710" y1="262" x2="780" y2="262" marker-end="url(#arrow)"/>
   <line class="edge" x1="710" y1="406" x2="780" y2="406" marker-end="url(#arrow)"/>
   <rect class="box" x="780" y="160" width="200" height="276" rx="10"/>
-  <text class="t-title" x="880" y="272" text-anchor="middle">HttpExceptionFilter</text>
-  <text class="t-sub" x="880" y="292" text-anchor="middle">global, registered in main.ts</text>
+  <text class="t-title" x="880" y="272" text-anchor="middle">Nest exception layer</text>
+  <text class="t-sub" x="880" y="292" text-anchor="middle">built into NestJS</text>
   <text class="m t-sub" x="880" y="320" text-anchor="middle">{ statusCode, message,</text>
-  <text class="m t-sub" x="880" y="338" text-anchor="middle">path, timestamp }</text>
+  <text class="m t-sub" x="880" y="338" text-anchor="middle">error }</text>
   <line class="edge" x1="880" y1="436" x2="880" y2="476" marker-end="url(#arrow)"/>
   <rect class="te" x="780" y="476" width="200" height="36" rx="18"/>
   <text class="t-title" x="880" y="499" text-anchor="middle">error JSON to client</text>

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1040" height="596" viewBox="0 0 1040 596" role="img" aria-labelledby="title desc">
 <title id="title">Client state ownership</title>
-<desc id="desc">The Redux store holds authSlice (token, user) and uiSlice (selectedInvoiceId, page). LoginPage validates with zod, calls the useLogin mutation and dispatches setCredentials. ProtectedRoute reads the token and redirects to /login if missing. InvoiceTable dispatches openInvoice on row click and reads rows from the ['invoices', page] query. InvoiceModal reads the selected id from Redux and fetches ['invoice', id]. All queries call one axios instance, which adds the Bearer token and calls the NestJS API. A 401 response dispatches logout.</desc>
+<desc id="desc">The Redux store holds authSlice (token, user) and uiSlice (selectedInvoiceId, page). LoginPage validates with zod, calls the login mutation and dispatches loggedIn. ProtectedRoute reads the token and redirects to /login if missing. InvoiceTable dispatches invoiceSelected on row click and reads rows from the ['invoices', page] query. InvoiceModal reads the selected id from Redux and fetches ['invoice', id]. All queries call one axios instance, which adds the Bearer token and calls the NestJS API. A 401 response dispatches loggedOut.</desc>
 <defs>
 <style>
 :root{--surface:#ffffff;--sunk:#e9edeb;--ink:#172024;--ink-2:#3a464b;--muted:#5c686d;--line:#cdd5d2;--client:#2a55c8;--client-tint:#e6ecfb;--api:#9c5600;--api-tint:#fbf0dd}
@@ -31,14 +31,14 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
   <text class="m t-title" x="52" y="86">authSlice</text>
   <text class="m t-sub" x="52" y="110">token: string | null</text>
   <text class="m t-sub" x="52" y="128">user: { id, email, name }</text>
-  <text class="t-sub" x="52" y="156">setCredentials · logout</text>
+  <text class="t-sub" x="52" y="156">loggedIn · loggedOut</text>
   <text class="t-sub" x="52" y="176">token mirrored to localStorage</text>
   <rect class="tc" x="36" y="246" width="228" height="138" rx="6"/>
   <text class="m t-title" x="52" y="270">uiSlice</text>
   <text class="m t-sub" x="52" y="294">selectedInvoiceId</text>
   <text class="m t-sub" x="52" y="312">page</text>
-  <text class="t-sub" x="52" y="340">openInvoice · closeInvoice</text>
-  <text class="t-sub" x="52" y="360">setPage</text>
+  <text class="t-sub" x="52" y="340">invoiceSelected(id | null)</text>
+  <text class="t-sub" x="52" y="360">pageChanged</text>
 
   <!-- Routes / components -->
   <text class="t-title" x="500" y="44" text-anchor="middle">Routes and components</text>
@@ -63,7 +63,7 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
   <rect class="panel" x="720" y="20" width="260" height="392" rx="10"/>
   <text class="t-title" x="736" y="44">TanStack Query cache</text>
   <rect class="tc" x="736" y="62" width="228" height="56" rx="6"/>
-  <text class="m t-title" x="752" y="85">useLogin()</text>
+  <text class="m t-title" x="752" y="85">useMutation(login)</text>
   <text class="t-sub" x="752" y="105">mutation · POST /auth/login</text>
   <text class="t-sub" x="850" y="176" text-anchor="middle">each queryFn calls axios;</text>
   <text class="t-sub" x="850" y="194" text-anchor="middle">zod parses the response</text>
@@ -76,11 +76,11 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
 
   <!-- store <-> components -->
   <line class="edge" x1="370" y1="90" x2="280" y2="90" marker-end="url(#arrow)"/>
-  <text class="t-lbl" x="325" y="82" text-anchor="middle">setCredentials</text>
+  <text class="t-lbl" x="325" y="82" text-anchor="middle">loggedIn</text>
   <line class="edge" x1="280" y1="170" x2="370" y2="170" marker-end="url(#arrow)"/>
   <text class="t-lbl" x="325" y="162" text-anchor="middle">token?</text>
   <line class="edge" x1="386" y1="280" x2="280" y2="280" marker-end="url(#arrow)"/>
-  <text class="t-lbl" x="325" y="272" text-anchor="middle">openInvoice</text>
+  <text class="t-lbl" x="325" y="272" text-anchor="middle">invoiceSelected</text>
   <line class="edge" x1="280" y1="364" x2="386" y2="364" marker-end="url(#arrow)"/>
   <text class="t-lbl" x="325" y="356" text-anchor="middle">selected id</text>
 
@@ -88,9 +88,9 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
   <line class="edge" x1="630" y1="90" x2="736" y2="90" marker-end="url(#arrow)"/>
   <text class="t-lbl" x="675" y="82" text-anchor="middle">mutate</text>
   <line class="edge" x1="614" y1="280" x2="736" y2="280" marker-end="url(#arrow)"/>
-  <text class="t-lbl" x="675" y="272" text-anchor="middle">useInvoices</text>
+  <text class="t-lbl" x="675" y="272" text-anchor="middle">useQuery</text>
   <line class="edge" x1="614" y1="364" x2="736" y2="364" marker-end="url(#arrow)"/>
-  <text class="t-lbl" x="675" y="356" text-anchor="middle">useInvoice(id)</text>
+  <text class="t-lbl" x="675" y="356" text-anchor="middle">useQuery (id)</text>
 
   <!-- axios + api -->
   <line class="edge" x1="850" y1="412" x2="850" y2="448" marker-end="url(#arrow)"/>
@@ -106,6 +106,6 @@ text{font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Hel
   <line class="edge" x1="720" y1="480" x2="630" y2="480" marker-end="url(#arrow)"/>
   <text class="t-lbl" x="675" y="472" text-anchor="middle">HTTP</text>
   <path class="edge dash" d="M850,512 V540 H150 V412" marker-end="url(#arrow)"/>
-  <text class="t-lbl" x="500" y="533" text-anchor="middle">on 401: dispatch(logout), clear cache</text>
+  <text class="t-lbl" x="500" y="533" text-anchor="middle">on 401: dispatch(loggedOut())</text>
 </g>
 </svg>
