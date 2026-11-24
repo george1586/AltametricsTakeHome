@@ -1,0 +1,43 @@
+gitignore
+# Dependencies
+node_modules/
+
+# Environment files (secrets); keep the examples
+.env
+.env.*
+!.env.example
+
+# Build output and caches
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test output
+coverage/
+test-results/
+playwright-report/
+blob-report/
+
+# AI coding-tool files
+.agents/
+.claude/
+.cursor/
+.devin/
+AGENTS.md
+CLAUDE.md
+prisma-8.md
+
+# Postman workspace
+.postman/
+postman/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
